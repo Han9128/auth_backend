@@ -1,11 +1,11 @@
 
 const User = require('../models/authModel');
 
-const register = (req,res) => {
+const register = async (req,res) => {
     try{
         const data = req.body;
         const user = new User(data);
-        const registeredUser = user.save();
+        const registeredUser = await user.save();
         res.status(201).json(registeredUser);
     } catch(err){
         console.error(`Error in registration ${err}`);

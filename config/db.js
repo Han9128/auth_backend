@@ -9,7 +9,6 @@ const connectDb = async ()=>{
         console.log(`Connected the Db succesfully!`)
     } catch(err){
         console.log(`Error occured in db connection ${err}`);
-        res.status(500).json(`Error occured in db connection ${err.message}`);
     }
 }
 
