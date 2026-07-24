@@ -1,9 +1,10 @@
 
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
 const User = require('../models/authModel');
 
-
+const secret = process.env.SECRET;
+console.log(secret);
 // when we hash password here then one issue happens that to validator defined in model hashed password is passed
 //  which pass the password validator becaused hashed password satisfy all constraints always. To avoid that 
 // if we use model validate function here then it solves the issue but now validate called twice once on plain password 
@@ -56,13 +57,31 @@ const login = async (req,res) => {
         if(!validPassword){
             return res.status(401).json({message:"Invalid Email or Password"});
         }
-        return res.status(200).json({message:"Login Succesful"});
+
+        const user = {id:storedData._id,email:storedData.email};
+        const token = jwt.sign(user,secret,{expiresIn:'7h'}) // never pass any password or any confidential information in jwt as jwt is base64 encoded which can be decoded easily
+
+        return res.status(200).json(token);
 
     }catch(error){
         return res.status(500).json({error:error.message})
     }
 }
 
+const profile = async (req,res)=>{
+    try{
+        const {email} = req.query;
+        const userData = await User.findOne({email});
+        if(!userData){
+            return res.status(404).json({message:"user not found"});
+        }
+
+        return res.status(200).json(userData);
+    }catch(error){
+        res.status(500).json({message:error.message});
+    }
+}
+
 module.exports = {
-    register, login
+    register, login,profile
 }
