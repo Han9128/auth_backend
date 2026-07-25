@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/authModel');
 
 const secret = process.env.SECRET;
-console.log(secret);
 // when we hash password here then one issue happens that to validator defined in model hashed password is passed
 //  which pass the password validator becaused hashed password satisfy all constraints always. To avoid that 
 // if we use model validate function here then it solves the issue but now validate called twice once on plain password 
@@ -70,8 +69,8 @@ const login = async (req,res) => {
 
 const profile = async (req,res)=>{
     try{
-        const {email} = req.query;
-        const userData = await User.findOne({email});
+        const email = req.user.email;
+        const userData = await User.findOne({email}).select('-password');
         if(!userData){
             return res.status(404).json({message:"user not found"});
         }
