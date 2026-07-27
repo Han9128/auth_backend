@@ -1,9 +1,10 @@
 
+// this must be before importng db otherwiser it is does not provide .env variable to db.js file
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const router = require('./routes/authRoute');
-// this must be before importng db otherwiser it is does not provide .env variable to db.js file
+const authRouter = require('./routes/authRoute');
+const canvasRouter = require('./routes/canvasRoute');
 const connectDb = require('./config/db')
 
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,8 @@ app.use(cors());
 app.use(express.json());
 
 
-app.use('/api',router);
+app.use('/api',authRouter);
+app.use('/api/canvas',canvasRouter)
 
 app.listen(PORT,()=>{
     console.log(`Server is listening on port ${PORT}`)
