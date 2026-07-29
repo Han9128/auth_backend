@@ -53,8 +53,35 @@ const loadCanvas = async (req,res)=>{
     }
 }
 
+const updateCanvas = async (req,res)=>{
+    const userId = req.user.id;
+
+    try{
+        const canvasId = req.params.id;
+        const canvas = await Canvas.findById(canvasId);
+
+        if(!canvas){
+            return res.status(404).json({error:"Canvas not found"})
+        }
+
+        const canEdit = canvas.owner._id.toString() === userId || canvas.sharedWith.some(id=>id.equals(userId))
+
+        if(!canEdit){
+            return res.status(403).json({error:"Unauthorized to access"})
+        }
+
+        canvas.elements = req.body.elements;
+        await canvas.save();
+
+        return res.status(200).json({message:"Canvas Updated"})
+    } catch(error){
+        return res.status(500).json({error:"Failed to update canvas",detail:error.message})
+    }
+}
+
 module.exports = {
     getCanvases,
     createCanvas,
-    loadCanvas
+    loadCanvas,
+    updateCanvas
 }
