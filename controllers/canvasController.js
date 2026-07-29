@@ -34,9 +34,27 @@ const createCanvas = async (req,res)=>{
     }
 }
 
+const loadCanvas = async (req,res)=>{
+    try{
+        const canvasId = req.params.id;
+        const userId = req.user.id;
+        
+        const canvas = await Canvas.findById(canvasId);
+        if(!canvas){
+            return res.status(404).json({error:"Canvas not found"})
+        };
+        if(canvas.owner._id.toString() !== userId && !canvas.sharedWith.includes(userId)){
+            return res.status(401).json({error:"Unauthorized to access this canvas"})
+        }
 
+        return res.status(200).json({canvas,message:"canvas found"})
+    }catch(error){
+        return res.status(500).json({error:"Failed to load canvas",detail:error.message})
+    }
+}
 
 module.exports = {
     getCanvases,
-    createCanvas
+    createCanvas,
+    loadCanvas
 }
