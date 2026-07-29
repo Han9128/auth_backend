@@ -79,9 +79,31 @@ const updateCanvas = async (req,res)=>{
     }
 }
 
+const deleteCanvas = async (req,res)=>{
+    const userId = req.user.id;
+    try{
+        const canvasId = req.params.id;
+        const canvas = await Canvas.findById(canvasId);
+        if(!canvas){
+            return res.status(404).json({error:"Canvas not found"});
+        }
+
+        const canDelete = canvas.owner._id.toString() === userId
+        if(!canDelete){
+            return res.status(403).json({error:"Unauthorized to delete"}); // 401 is used if user is not authenticated, here user is authenticated but not authorized to delete so 403 used
+        }
+
+        await Canvas.findByIdAndDelete(canvasId)
+        return res.status(200).json({message:"Canvas deleted"});
+    }catch(error){
+        return res.status(500).json({error:"Failed to delete the canvas",detail:error.message})
+    }
+}
+
 module.exports = {
     getCanvases,
     createCanvas,
     loadCanvas,
-    updateCanvas
+    updateCanvas,
+    deleteCanvas
 }
