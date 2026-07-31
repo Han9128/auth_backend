@@ -5,7 +5,8 @@ const express = require('express');
 const cors = require('cors');
 const authRouter = require('./routes/authRoute');
 const canvasRouter = require('./routes/canvasRoute');
-const connectDb = require('./config/db')
+const connectDb = require('./config/db');
+const {setUpSocket} = require('./websocket/socket')
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,7 +23,10 @@ app.use(express.json());
 app.use('/api',authRouter);
 app.use('/api/canvas',canvasRouter)
 
-app.listen(PORT,()=>{
+// app.listen internally create and return the http server
+const server = app.listen(PORT,()=>{ 
     console.log(`Server is listening on port ${PORT}`)
 });
+
+setUpSocket(server);
 
