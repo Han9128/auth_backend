@@ -9,7 +9,7 @@ router.post('/create',authenticateRoute,createCanvas);
 router.get('/load/:id',authenticateRoute,loadCanvas);
 router.put('/update/:id',authenticateRoute,updateCanvas);
 router.delete('/delete/:id',authenticateRoute,deleteCanvas);
-router.post('/share/:id',authenticateRoute,shareCanvas);
+router.put('/share/:id',authenticateRoute,shareCanvas);
 
 
 module.exports = router;
