@@ -1,5 +1,6 @@
 
-const Canvas = require('../models/canvasModel')
+const Canvas = require('../models/canvasModel');
+const User = require('../models/authModel');
 
 const getCanvases = async (req,res)=>{
     try{
@@ -100,10 +101,48 @@ const deleteCanvas = async (req,res)=>{
     }
 }
 
+const shareCanvas = async (req,res)=>{
+    const userId = req.user.id;
+    try{
+        const canvasId = req.params.id;
+        const canvas = await Canvas.findById(canvasId);
+
+        if(!canvas){
+            return res.status(404).json({error:"Canvas Not Found"});
+        }
+
+        const canShare = canvas.owner._id.toString() === userId;
+        if(!canShare){
+            return res.status(403).json({error:"Unauthorized to share"});
+        }
+
+        const sharedEmail = req.body.email;
+        const sharedUser = await User.findOne({email:sharedEmail});
+        if(!sharedUser){
+            return res.status(404).json({error:"User does not exist"})
+        }
+
+        if(sharedUser._id.equals(userId)){
+            return res.status(400).json({message:"Owner can't share with themselves"})
+        }
+
+        if(canvas.sharedWith.includes(sharedUser._id)){
+            return res.status(400).json({message:"This is already shared with this user"})
+        }
+
+        canvas.sharedWith.push(sharedUser._id);
+        await canvas.save();
+        return res.status(200).json({message:"Canvas Shared Succesfully"})
+    }catch(error){
+        return res.status(500).json({error:"Faild to share canvas",detail:error.message})
+    }
+}
+
 module.exports = {
     getCanvases,
     createCanvas,
     loadCanvas,
     updateCanvas,
-    deleteCanvas
+    deleteCanvas,
+    shareCanvas,
 }
