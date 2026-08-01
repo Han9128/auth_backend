@@ -21,7 +21,7 @@ const setUpSocket = (server) => {
         })
 
         socket.on('disconnect', () => {
-            console.log('user disconnected', socekt.id)
+            console.log('user disconnected', socket.id)
         });
     });
 }
