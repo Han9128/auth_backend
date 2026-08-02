@@ -1,5 +1,5 @@
 const Canvas = require("../../models/canvasModel");
-
+const {canvasData} = require('./drawEvents');
 
 const canvasEventHandler =  (socket) => {
     socket.on('joinCanvas',async ({canvasId})=>{
@@ -15,11 +15,13 @@ const canvasEventHandler =  (socket) => {
                 return socket.emit("unauthorized",{message:"Not authorized"});
             }
             socket.join(canvasId);
-            console.log(`User with socket id ${socket.id} joined canvas ${canvasId}`)
-            socket.emit("loadCanvas",{elements:canvas.elements})
+            console.log(`User with socket id ${socket.id} joined canvas ${canvasId}`);
+            socket.emit("loadCanvas",{elements:canvasData[canvasId] || canvas.elements})
+            
         }catch(err){
-            socket.emit("error",{detail:err.message})
+            socket.emit("joinCanvasError",{detail:err.message}) // emitting "error" event just drops the socket connection without emitting this error while if we use any other even name like "joinCanvasError" it does not drop the socket conneciton
         }
+
     })
 }
 
