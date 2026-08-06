@@ -1,6 +1,8 @@
 
 const { Server } = require('socket.io');
 const canvasEventHandler = require('./events/canvasEvents');
+const {drawEventsHandler} = require('./events/drawEvents')
+const {commentEventsHandler} = require('./events/commentEvents')
 const socketAuth = require('./middleware/socketAuth')
 
 // create http serve
@@ -16,9 +18,11 @@ const setUpSocket = (server) => {
         console.log('A user connected', socket.id);
 
         canvasEventHandler(socket);
+        drawEventsHandler(socket);
+        commentEventsHandler(socket);
 
-        socket.on('disconnect', () => {
-            console.log('user disconnected', socket.id)
+        socket.on('disconnect', (reason) => {
+            console.log('user disconnected', socket.id, reason)
         });
     });
 }
@@ -27,6 +31,10 @@ const setUpSocket = (server) => {
 module.exports = {
     setUpSocket
 }
+
+
+
+
 
 
 
