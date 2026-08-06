@@ -37,50 +37,55 @@ const register = async (req, res) => {
 
         res.status(201).json(registeredUser);
     } catch (err) {
+        if (err.code === 11000) {
+            return res.status(400).json({
+                message: "Email already exists"
+            });
+        }
         res.status(400).json({
             error: err.message
         });
     }
 };
 
-const login = async (req,res) => {
-    try{
-        const {email,password} = req.body;
-        const storedData = await User.findOne({email});
-        if(!storedData){
-            return res.status(401).json({message:"Invalid Email or Password"})
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const storedData = await User.findOne({ email });
+        if (!storedData) {
+            return res.status(401).json({ message: "Invalid Email or Password" })
         }
 
         const storedHash = storedData.password;
-        const validPassword = await bcrypt.compare(password,storedHash);
-        if(!validPassword){
-            return res.status(401).json({message:"Invalid Email or Password"});
+        const validPassword = await bcrypt.compare(password, storedHash);
+        if (!validPassword) {
+            return res.status(401).json({ message: "Invalid Email or Password" });
         }
 
-        const user = {id:storedData._id,email:storedData.email};
-        const token = jwt.sign(user,secret,{expiresIn:'7h'}) // never pass any password or any confidential information in jwt as jwt is base64 encoded which can be decoded easily
+        const user = { id: storedData._id, email: storedData.email };
+        const token = jwt.sign(user, secret, { expiresIn: '7h' }) // never pass any password or any confidential information in jwt as jwt is base64 encoded which can be decoded easily
 
         return res.status(200).json(token);
 
-    }catch(error){
-        return res.status(500).json({error:error.message})
+    } catch (error) {
+        return res.status(500).json({ error: error.message })
     }
 }
 
-const profile = async (req,res)=>{
-    try{
+const profile = async (req, res) => {
+    try {
         const email = req.user.email;
-        const userData = await User.findOne({email}).select('-password');
-        if(!userData){
-            return res.status(404).json({message:"user not found"});
+        const userData = await User.findOne({ email }).select('-password');
+        if (!userData) {
+            return res.status(404).json({ message: "user not found" });
         }
 
         return res.status(200).json(userData);
-    }catch(error){
-        res.status(500).json({message:error.message});
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 }
 
 module.exports = {
-    register, login,profile
+    register, login, profile
 }
